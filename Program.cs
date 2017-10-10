@@ -9,12 +9,19 @@ namespace FixLicenseHeader
     {
         static void Main(string[] args)
         {
-            string[] Header = new[]
+            string[] header = new[]
             {
                 "//-----------------------------------------------------------------------------",
                 "// Copyright (c) Microsoft Corporation.  All rights reserved.",
                 "//-----------------------------------------------------------------------------",
                 "",
+            };
+
+            string[] startingLines = new[]
+            {
+                "using ",
+                "namespace ",
+                "[assembly: "
             };
 
             string[] files = Directory.GetFiles(args[0], "*.cs", SearchOption.AllDirectories);
@@ -35,13 +42,15 @@ namespace FixLicenseHeader
                     int index = 0;
                     for (; index < contents.Length; index++)
                     {
-                        if (contents[index].StartsWith("namespace ") || contents[index].StartsWith("using "))
+                        string line = contents[index].Trim();
+
+                        if (startingLines.Any(p => line.StartsWith(p, StringComparison.Ordinal)))
                         {
                             break;
                         }
                     }
 
-                    File.WriteAllLines(file, Header.Concat(contents.Skip(index)), Encoding.UTF8);
+                    File.WriteAllLines(file, header.Concat(contents.Skip(index)), Encoding.UTF8);
 
                     Console.WriteLine($"File processing succeeded: {file}");
                 }
